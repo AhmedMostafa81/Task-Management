@@ -23,3 +23,7 @@ Feature: Task Filtering and Searching
     Given my task list contains only "TODO" tasks
     When I filter my tasks by status "DONE"
     Then I should see 0 tasks in the results
+
+  Scenario: Filter tasks by both status and priority
+    When I filter my tasks by status "TODO" and priority "MEDIUM"
+    Then I should see 1 task in the results
