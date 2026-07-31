@@ -25,9 +25,11 @@ jobs:
           cache: maven
 
       - name: Build the project
+        working-directory: ./backend
         run: mvn clean package -DskipTests
 
       - name: Run tests
+        working-directory: ./backend
         run: mvn test
 
       - name: Publish test results
@@ -35,4 +37,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: test-reports
-          path: target/surefire-reports
+          path: backend/target/surefire-reports
