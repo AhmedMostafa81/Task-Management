@@ -7,6 +7,8 @@ import com.internship.backend.enums.Status;
 import com.internship.backend.repository.TaskRepository;
 import com.internship.backend.service.TaskService;
 import io.cucumber.datatable.DataTable;
+import io.cucumber.java.Before;
+import io.cucumber.java.PendingException;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -31,23 +33,44 @@ public class TaskStepDefinitions {
     @Autowired
     private TaskRepository taskRepository;
 
+    @Autowired
+    private com.internship.backend.repository.UserRepository userRepository;
+
+    private com.internship.backend.entity.User testUser;
     private TaskResponseDTO currentTask;
     private Long currentTaskId;
     private List<TaskResponseDTO> queryResults;
 
+    @Before
+    public void beforeScenario() {
+        // Ensure a default test user exists and clean tasks between scenarios
+        // Always clean tasks first to avoid FK constraint when deleting users
+        taskRepository.deleteAll();
+        if (testUser == null) {
+            userRepository.deleteAll();
+            testUser = com.internship.backend.entity.User.builder()
+                    .username("testuser")
+                    .password("password")
+                    .build();
+            testUser = userRepository.save(testUser);
+        }
+    }
+
     @Given("the task system is ready")
     public void the_task_system_is_ready() {
+        // kept for compatibility with feature files
         taskRepository.deleteAll();
     }
 
-    @When("I create a task titled {string} with priority {string} and status {string}")
-    public void i_create_a_task_titled_with_priority_and_status(String title, String priority, String status) {
+    @When("I create a task titled {string} with priority {string} and status {string} and user {string}")
+    public void i_create_a_task_titled_with_priority_and_status(String title, String priority, String status, String username) {
         TaskRequestDTO request = TaskRequestDTO.builder()
                 .title(title)
                 .priority(Priority.valueOf(priority))
                 .status(Status.valueOf(status))
                 .build();
-        currentTask = taskService.createTask(request);
+        com.internship.backend.entity.User user = userRepository.findByUsername(username).orElse(testUser);
+        currentTask = taskService.createTask(request, user);
         currentTaskId = currentTask.getId();
     }
 
@@ -61,14 +84,15 @@ public class TaskStepDefinitions {
         assertEquals(Status.valueOf(expectedStatus), currentTask.getStatus());
     }
 
-    @Given("I have an existing task titled {string} with status {string} and priority {string}")
-    public void i_have_an_existing_task_titled_with_status_and_priority(String title, String status, String priority) {
+    @Given("I have an existing task titled {string} with status {string} and priority {string} and user {string}")
+    public void i_have_an_existing_task_titled_with_status_and_priority(String title, String status, String priority, String username) {
         TaskRequestDTO request = TaskRequestDTO.builder()
                 .title(title)
                 .status(Status.valueOf(status))
                 .priority(Priority.valueOf(priority))
                 .build();
-        currentTask = taskService.createTask(request);
+        com.internship.backend.entity.User user = userRepository.findByUsername(username).orElse(testUser);
+        currentTask = taskService.createTask(request, user);
         currentTaskId = currentTask.getId(); // Capture the ID
     }
 
@@ -80,7 +104,7 @@ public class TaskStepDefinitions {
                 .status(Status.valueOf(newStatus))
                 .priority(currentTask.getPriority())
                 .build();
-        currentTask = taskService.updateTask(currentTaskId, updateRequest);
+        currentTask = taskService.updateTask(currentTaskId, updateRequest, testUser);
     }
 
     @Then("the task status should be updated to {string}")
@@ -96,7 +120,7 @@ public class TaskStepDefinitions {
                 .status(currentTask.getStatus())
                 .priority(Priority.valueOf(newPriority))
                 .build();
-        currentTask = taskService.updateTask(currentTaskId, updateRequest);
+        currentTask = taskService.updateTask(currentTaskId, updateRequest, testUser);
     }
 
     @Then("the task priority should be updated to {string}")
@@ -106,13 +130,13 @@ public class TaskStepDefinitions {
 
     @When("I delete the task by its ID")
     public void i_delete_the_task_by_its_id() {
-        taskService.deleteTask(currentTaskId);
+        taskService.deleteTask(currentTaskId, testUser);
     }
 
     @Then("the task should no longer exist in the database")
     public void the_task_should_no_longer_exist_in_the_database() {
         assertThrows(ResponseStatusException.class, () -> {
-            taskService.getTaskById(currentTaskId);
+        taskService.getTaskById(currentTaskId, testUser);
         }, "Expected TaskService to throw a 404 when fetching a deleted task");
     }
 
@@ -126,31 +150,35 @@ public class TaskStepDefinitions {
                     .status(Status.valueOf(row.get("Status")))
                     .priority(Priority.valueOf(row.get("Priority")))
                     .build();
-            taskService.createTask(request);
+            // allow feature files to specify a User column; fallback to default testUser
+            String username = row.getOrDefault("User", testUser.getUsername());
+            com.internship.backend.entity.User user = userRepository.findByUsername(username).orElse(testUser);
+            taskService.createTask(request, user);
         }
     }
 
-    @Given("my task list contains only {string} tasks")
-    public void my_task_list_contains_only_tasks(String status) {
+    @Given("my task list contains only {string} tasks for user {string}")
+    public void my_task_list_contains_only_tasks(String status, String username) {
         taskRepository.deleteAll();
         TaskRequestDTO request = TaskRequestDTO.builder()
                 .title("Sample Task")
                 .status(Status.valueOf(status))
                 .priority(Priority.LOW)
                 .build();
-        taskService.createTask(request);
+        com.internship.backend.entity.User user = userRepository.findByUsername(username).orElse(testUser);
+        taskService.createTask(request, user);
     }
 
     @When("I filter my tasks by status {string}")
     public void i_filter_my_tasks_by_status(String status) {
         // Pass null for priority
-        queryResults = taskService.getTasks(Status.valueOf(status), null);
+        queryResults = taskService.getTasks(Status.valueOf(status), null, testUser);
     }
 
     @When("I filter my tasks by priority {string}")
     public void i_filter_my_tasks_by_priority(String priority) {
         // Pass null for status
-        queryResults = taskService.getTasks(null, Priority.valueOf(priority));
+        queryResults = taskService.getTasks(null, Priority.valueOf(priority), testUser);
     }
 
     @Then("I should see {int} task(s) in the results")
@@ -160,7 +188,7 @@ public class TaskStepDefinitions {
 
     @When("I filter my tasks by status {string} and priority {string}")
     public void i_filter_my_tasks_by_status_and_priority(String status, String priority) {
-        queryResults = taskService.getTasks(Status.valueOf(status), Priority.valueOf(priority));
+        queryResults = taskService.getTasks(Status.valueOf(status), Priority.valueOf(priority), testUser);
     }
 
 }

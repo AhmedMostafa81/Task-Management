@@ -2,6 +2,7 @@ package com.internship.backend.service;
 import com.internship.backend.dto.TaskRequestDTO;
 import com.internship.backend.dto.TaskResponseDTO;
 import com.internship.backend.entity.Task;
+import com.internship.backend.entity.User;
 import com.internship.backend.enums.Priority;
 import com.internship.backend.enums.Status;
 import com.internship.backend.repository.TaskRepository;
@@ -18,46 +19,42 @@ public class TaskService {
 
     private final TaskRepository taskRepository;
 
-    public TaskResponseDTO createTask(TaskRequestDTO requestDTO) {
+    public TaskResponseDTO createTask(TaskRequestDTO requestDTO, User user) {
         Task task = Task.builder()
                 .title(requestDTO.getTitle())
                 .description(requestDTO.getDescription())
                 .status(requestDTO.getStatus())
                 .priority(requestDTO.getPriority())
+                .user(user)
                 .build();
 
         Task savedTask = taskRepository.save(task);
         return mapToResponseDTO(savedTask);
     }
 
-    public List<TaskResponseDTO> getTasks(Status status, Priority priority) {
+    public List<TaskResponseDTO> getTasks(Status status, Priority priority, User user) {
         List<Task> tasks;
 
-        // Check which filters are applied and call the corresponding repository method
         if (status != null && priority != null) {
-            tasks = taskRepository.findByStatusAndPriority(status, priority);
+            tasks = taskRepository.findAllByUserAndStatusAndPriority(user, status, priority);
         } else if (status != null) {
-            tasks = taskRepository.findByStatus(status);
+            tasks = taskRepository.findAllByUserAndStatus(user, status);
         } else if (priority != null) {
-            tasks = taskRepository.findByPriority(priority);
+            tasks = taskRepository.findAllByUserAndPriority(user, priority);
         } else {
-            tasks = taskRepository.findAll();
+            tasks = taskRepository.findAllByUser(user);
         }
 
-        return tasks.stream()
-                .map(this::mapToResponseDTO)
-                .collect(Collectors.toList());
+        return tasks.stream().map(this::mapToResponseDTO).collect(Collectors.toList());
     }
 
-    public TaskResponseDTO getTaskById(Long id) {
-        Task task = taskRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found with id: " + id));
+    public TaskResponseDTO getTaskById(Long id, User user) {
+        Task task = getTaskForUser(id, user);
         return mapToResponseDTO(task);
     }
 
-    public TaskResponseDTO updateTask(Long id, TaskRequestDTO requestDTO) {
-        Task task = taskRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found with id: " + id));
+    public TaskResponseDTO updateTask(Long id, TaskRequestDTO requestDTO, User user) {
+        Task task = getTaskForUser(id, user);
 
         task.setTitle(requestDTO.getTitle());
         task.setDescription(requestDTO.getDescription());
@@ -68,11 +65,9 @@ public class TaskService {
         return mapToResponseDTO(updatedTask);
     }
 
-    public void deleteTask(Long id) {
-        if (!taskRepository.existsById(id)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found with id: " + id);
-        }
-        taskRepository.deleteById(id);
+    public void deleteTask(Long id, User user) {
+        Task task = getTaskForUser(id, user);
+        taskRepository.delete(task);
     }
 
     private TaskResponseDTO mapToResponseDTO(Task task) {
@@ -84,5 +79,10 @@ public class TaskService {
                 .priority(task.getPriority())
                 .createdAt(task.getCreatedAt())
                 .build();
+    }
+
+    private Task getTaskForUser(Long id, User user) {
+        return taskRepository.findByIdAndUser(id, user)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found or access denied"));
     }
 }

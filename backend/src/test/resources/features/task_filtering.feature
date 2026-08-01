@@ -5,11 +5,11 @@ Feature: Task Filtering and Searching
 
   Background:
     Given my task list contains the following tasks:
-      | Title                 | Status      | Priority |
-      | Setup Spring Boot     | DONE        | HIGH     |
-      | Write BDD Scenarios   | IN_PROGRESS | HIGH     |
-      | Design Angular UI     | TODO        | MEDIUM   |
-      | Refactor Entity Files | TODO        | LOW      |
+      | Title                 | Status      | Priority | User     |
+      | Setup Spring Boot     | DONE        | HIGH     | testuser |
+      | Write BDD Scenarios   | IN_PROGRESS | HIGH     | testuser |
+      | Design Angular UI     | TODO        | MEDIUM   | testuser |
+      | Refactor Entity Files | TODO        | LOW      | testuser |
 
   Scenario: Filter tasks to see only completed work
     When I filter my tasks by status "DONE"
@@ -20,7 +20,7 @@ Feature: Task Filtering and Searching
     Then I should see 2 tasks in the results
 
   Scenario: Filter by a status that has no matching tasks yet
-    Given my task list contains only "TODO" tasks
+    Given my task list contains only "TODO" tasks for user "testuser"
     When I filter my tasks by status "DONE"
     Then I should see 0 tasks in the results
 
