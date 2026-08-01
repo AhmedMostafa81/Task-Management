@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @CucumberContextConfiguration
 @SpringBootTest
+@org.springframework.test.context.ActiveProfiles("test")
 public class TaskStepDefinitions {
 
     @Autowired
