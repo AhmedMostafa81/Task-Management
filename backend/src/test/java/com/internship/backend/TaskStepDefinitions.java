@@ -43,8 +43,6 @@ public class TaskStepDefinitions {
 
     @Before
     public void beforeScenario() {
-        // Ensure a default test user exists and clean tasks between scenarios
-        // Always clean tasks first to avoid FK constraint when deleting users
         taskRepository.deleteAll();
         if (testUser == null) {
             userRepository.deleteAll();
@@ -150,7 +148,6 @@ public class TaskStepDefinitions {
                     .status(Status.valueOf(row.get("Status")))
                     .priority(Priority.valueOf(row.get("Priority")))
                     .build();
-            // allow feature files to specify a User column; fallback to default testUser
             String username = row.getOrDefault("User", testUser.getUsername());
             com.internship.backend.entity.User user = userRepository.findByUsername(username).orElse(testUser);
             taskService.createTask(request, user);
@@ -171,13 +168,11 @@ public class TaskStepDefinitions {
 
     @When("I filter my tasks by status {string}")
     public void i_filter_my_tasks_by_status(String status) {
-        // Pass null for priority
         queryResults = taskService.getTasks(Status.valueOf(status), null, testUser);
     }
 
     @When("I filter my tasks by priority {string}")
     public void i_filter_my_tasks_by_priority(String priority) {
-        // Pass null for status
         queryResults = taskService.getTasks(null, Priority.valueOf(priority), testUser);
     }
 

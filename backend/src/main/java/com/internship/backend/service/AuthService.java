@@ -26,26 +26,26 @@ public class AuthService {
     public AuthResponseDTO register(RegisterRequestDTO request) {
         log.debug("Starting registration process for username: {}", request.getUsername());
         
-        // 1. Check if username is taken
+        // Check if username is taken
         if (userRepository.existsByUsername(request.getUsername())) {
             log.warn("Registration failed - Username already exists: {}", request.getUsername());
             throw new IllegalArgumentException("Username is already taken!");
         }
         log.debug("Username availability check passed for: {}", request.getUsername());
 
-        // 2. Create the user and encrypt the password
+        // Create the user and encrypt the password
         log.debug("Encrypting password for username: {}", request.getUsername());
         User user = User.builder()
                 .username(request.getUsername())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .build();
 
-        // 3. Save to database
+        // Save to database
         log.debug("Saving user to database: {}", request.getUsername());
         User savedUser = userRepository.save(user);
         log.info("User saved successfully to database: {}", request.getUsername());
 
-        // 4. Generate JWT token
+        // Generate JWT token
         log.debug("Generating JWT token for username: {}", request.getUsername());
         String jwtToken = jwtService.generateToken(user);
         log.debug("JWT token generated successfully for username: {}", request.getUsername());
@@ -60,7 +60,7 @@ public class AuthService {
     public AuthResponseDTO login(LoginRequestDTO request) {
         log.debug("Starting login process for username: {}", request.getUsername());
         
-        // 1. Authenticate the user (this automatically checks the password against the hashed DB password)
+        // Authenticate the user
         log.debug("Authenticating credentials for username: {}", request.getUsername());
         try {
             authenticationManager.authenticate(
@@ -75,7 +75,6 @@ public class AuthService {
             throw e;
         }
 
-        // 2. If we reach this line, authentication was successful. Fetch the user.
         log.debug("Fetching user details from database for username: {}", request.getUsername());
         User user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> {
@@ -84,7 +83,7 @@ public class AuthService {
                 });
         log.debug("User details fetched successfully for username: {}", request.getUsername());
 
-        // 3. Generate a new JWT token
+        // Generate a new JWT token
         log.debug("Generating JWT token for login - username: {}", request.getUsername());
         String jwtToken = jwtService.generateToken(user);
         log.debug("JWT token generated successfully for login - username: {}", request.getUsername());
