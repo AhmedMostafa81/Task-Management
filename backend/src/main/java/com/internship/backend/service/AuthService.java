@@ -7,6 +7,7 @@ import com.internship.backend.entity.User;
 import com.internship.backend.repository.UserRepository;
 import com.internship.backend.security.JwtService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AuthService {
 
     private final UserRepository userRepository;
@@ -22,23 +24,33 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
 
     public AuthResponseDTO register(RegisterRequestDTO request) {
+        log.debug("Starting registration process for username: {}", request.getUsername());
+        
         // 1. Check if username is taken
         if (userRepository.existsByUsername(request.getUsername())) {
+            log.warn("Registration failed - Username already exists: {}", request.getUsername());
             throw new IllegalArgumentException("Username is already taken!");
         }
+        log.debug("Username availability check passed for: {}", request.getUsername());
 
         // 2. Create the user and encrypt the password
+        log.debug("Encrypting password for username: {}", request.getUsername());
         User user = User.builder()
                 .username(request.getUsername())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .build();
 
         // 3. Save to database
-        userRepository.save(user);
+        log.debug("Saving user to database: {}", request.getUsername());
+        User savedUser = userRepository.save(user);
+        log.info("User saved successfully to database: {}", request.getUsername());
 
         // 4. Generate JWT token
+        log.debug("Generating JWT token for username: {}", request.getUsername());
         String jwtToken = jwtService.generateToken(user);
+        log.debug("JWT token generated successfully for username: {}", request.getUsername());
 
+        log.info("Registration completed successfully for username: {}", request.getUsername());
         return AuthResponseDTO.builder()
                 .token(jwtToken)
                 .username(user.getUsername())
@@ -46,21 +58,38 @@ public class AuthService {
     }
 
     public AuthResponseDTO login(LoginRequestDTO request) {
+        log.debug("Starting login process for username: {}", request.getUsername());
+        
         // 1. Authenticate the user (this automatically checks the password against the hashed DB password)
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.getUsername(),
-                        request.getPassword()
-                )
-        );
+        log.debug("Authenticating credentials for username: {}", request.getUsername());
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            request.getUsername(),
+                            request.getPassword()
+                    )
+            );
+            log.debug("Authentication successful for username: {}", request.getUsername());
+        } catch (Exception e) {
+            log.warn("Authentication failed for username: {} - Error: {}", request.getUsername(), e.getMessage());
+            throw e;
+        }
 
         // 2. If we reach this line, authentication was successful. Fetch the user.
+        log.debug("Fetching user details from database for username: {}", request.getUsername());
         User user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> {
+                    log.error("User not found in database after successful authentication: {}", request.getUsername());
+                    return new IllegalArgumentException("User not found");
+                });
+        log.debug("User details fetched successfully for username: {}", request.getUsername());
 
         // 3. Generate a new JWT token
+        log.debug("Generating JWT token for login - username: {}", request.getUsername());
         String jwtToken = jwtService.generateToken(user);
+        log.debug("JWT token generated successfully for login - username: {}", request.getUsername());
 
+        log.info("Login completed successfully for username: {}", request.getUsername());
         return AuthResponseDTO.builder()
                 .token(jwtToken)
                 .username(user.getUsername())
