@@ -1,0 +1,121 @@
+:host {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #111827 0%, #0f172a 100%);
+    padding: 1rem;
+    min-height: calc(100vh - 60.66px);
+}
+
+.signUp-container {
+    width: 100%;
+    max-width: 400px;
+    padding: 2rem;
+    background: #111827;
+    border-radius: 20px;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+    text-align: center;
+    border: 1px solid #374151;
+}
+
+.signUp-title {
+    font-size: 2rem;
+    color: #f9fafb;
+    margin-bottom: 2rem;
+}
+
+.form-group {
+    margin-bottom: 1.2rem;
+}
+
+.form-input {
+    width: 100%;
+    height: 50px;
+    padding: 0 1rem;
+    border-radius: 25px;
+    border: 1px solid #4b5563;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+    font-size: 1rem;
+    outline: none;
+    transition: all 0.3s ease;
+    background: #1f2937;
+    color: #f9fafb;
+}
+
+.form-input:focus {
+    transform: scale(1.03);
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.25);
+    border-color: #8b5cf6;
+}
+
+.btn-submit {
+    width: 100%;
+    border-radius: 999px;
+    height: 50px;
+    border: none;
+    color: #fff;
+    background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.3s ease;
+    box-shadow: 0 10px 24px rgba(124, 58, 237, 0.25);
+}
+
+.btn-submit:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 12px 28px rgba(124, 58, 237, 0.32);
+}
+
+.signup-text {
+    margin-top: 1.5rem;
+    font-size: 0.95rem;
+}
+
+.signup-text a {
+    font-weight: 500;
+    color: #c7d2fe;
+    text-decoration: none;
+    transition: transform 0.3s ease;
+}
+
+.signup-text a:hover {
+    color: #ffffff;
+    text-decoration: underline;
+}
+
+@media (max-width: 480px) {
+    .login-title {
+        font-size: 1.6rem;
+    }
+
+    .form-input {
+        height: 45px;
+        font-size: 0.95rem;
+    }
+
+    .btn-submit {
+        height: 45px;
+        font-size: 0.95rem;
+    }
+
+    .signup-text {
+        font-size: 0.9rem;
+    }
+}
+
+.my-alert {
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+.my-alert-warning {
+    color: #856404;
+    background-color: #fff3cd;
+    border-color: #ffeeba;
+}

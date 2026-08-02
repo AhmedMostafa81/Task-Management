@@ -1,0 +1,22 @@
+<div class="add-task-form" [formGroup]="task">
+  <h2>{{ header }} Task</h2>
+  <form>
+    <div class='my-alert my-alert-warning' *ngIf="errorMessage!==''">{{errorMessage}}</div>
+    <input formControlName="title" type="text" placeholder="Task Title" required />
+    <textarea formControlName="description" placeholder="Task Description"></textarea>
+    
+    <select formControlName="status">
+      <option value="TODO">TODO</option>
+      <option value="IN_PROGRESS">In Progress</option>
+      <option value="DONE">Done</option>
+    </select>
+
+    <select formControlName="priority">
+      <option value="LOW">Low Priority</option>
+      <option value="MEDIUM">Medium Priority</option>
+      <option value="HIGH">High Priority</option>
+    </select>
+
+    <button (click)="onClickAdd()" type="button" class="submit-btn">{{ action }}</button>
+  </form>
+</div>

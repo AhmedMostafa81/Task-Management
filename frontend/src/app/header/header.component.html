@@ -1,0 +1,20 @@
+<header class="navbar">
+  <div class="navbar-left">
+    <div class="navbar-brand">
+      <a *ngIf="auth.isUserLoggedIn()" routerLink="/tasks">Home</a>
+    </div>
+  </div>
+  <!-- <h1>{{auth.isUserLoggedIn()}}</h1> -->
+  <button class="navbar-toggle" (click)="toggleMenu()">☰</button>
+
+  <nav class="navbar-menu" [class.open]="isMenuOpen">
+    <ul class="navbar-auth">
+      <li>
+        <a *ngIf="!auth.isUserLoggedIn()" routerLink="/login">Login</a>
+      </li>
+      <li>
+        <a *ngIf="auth.isUserLoggedIn()" (click)="logout()" routerLink="/login">Logout</a>
+      </li>
+    </ul>
+  </nav>
+</header>

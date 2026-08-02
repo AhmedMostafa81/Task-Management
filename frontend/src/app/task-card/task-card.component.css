@@ -1,0 +1,116 @@
+.task-card {
+  background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+  border-radius: 16px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.3);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.3s, box-shadow 0.3s;
+  min-height: 210px;
+  border: 1px solid #374151;
+}
+
+.task-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 16px 30px rgba(0, 0, 0, 0.35);
+}
+
+.task-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.task-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #f9fafb;
+}
+
+.task-meta {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.task-badge,
+.task-priority-badge {
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.TODO {
+  background-color: #ffe8e8;
+  color: #c0392b;
+}
+
+.IN_PROGRESS {
+  background-color: #fff4da;
+  color: #b15f00;
+}
+
+.COMPLETED {
+  background-color: #e7f8eb;
+  color: #2f7d4f;
+}
+
+.LOW {
+  background-color: #e7f8eb;
+  color: #2f7d4f;
+}
+
+.MEDIUM {
+  background-color: #fff4da;
+  color: #b15f00;
+}
+
+.HIGH {
+  background-color: #ffe8e8;
+  color: #c0392b;
+}
+
+.task-desc {
+  font-size: 14px;
+  color: #d1d5db;
+  margin-bottom: 15px;
+  line-height: 1.5;
+}
+
+.task-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.task-btn {
+  color: #fff;
+  background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%);
+  border: none;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.3s ease;
+  margin-right: 10px;
+}
+
+.task-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 16px rgba(124, 58, 237, 0.25);
+}
+
+.delete-btn {
+  background: linear-gradient(135deg, #f43f5e 0%, #dc2626 100%);
+}
+
+.delete-btn:hover {
+  box-shadow: 0 8px 16px rgba(220, 38, 38, 0.25);
+}

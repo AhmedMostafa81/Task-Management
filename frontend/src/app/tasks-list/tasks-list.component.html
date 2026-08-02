@@ -1,0 +1,34 @@
+<div class="dashboard-container">
+  <div class="dashboard-header">
+    <h1 class="dashboard-title">Task Dashboard</h1>
+    <button (click)=onClickAddTask() class="add-task-btn">+ Add Task</button>
+  </div>
+
+  <div class="toolbar">
+    <div class="left">
+      <label class="filter-label" for="statusFilter">Status</label>
+      <select id="statusFilter" [(ngModel)]="statusFilter" (ngModelChange)="onFilterTasks()">
+        <option value="">All Status</option>
+        <option value="TODO">TODO</option>
+        <option value="IN_PROGRESS">In Progress</option>
+        <option value="DONE">Done</option>
+      </select>
+    </div>
+    <div class="right">
+      <label class="filter-label" for="priorityFilter">Priority</label>
+      <select id="priorityFilter" [(ngModel)]="priorityFilter" (ngModelChange)="onFilterTasks()">
+        <option value="">All Priorities</option>
+        <option value="LOW">Low</option>
+        <option value="MEDIUM">Medium</option>
+        <option value="HIGH">High</option>
+      </select>
+      <button type="button" class="clear-btn" (click)="statusFilter=''; priorityFilter=''; onFilterTasks()">Clear</button>
+    </div>
+  </div>
+
+  <div class="tasks-grid">
+    @for(task of tasks; track task.id){
+    <app-task-card [task]="task" (taskDeleted)="onTaskDeleted($event)"></app-task-card>
+    }
+  </div>
+</div>
