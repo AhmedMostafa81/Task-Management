@@ -1,6 +1,6 @@
 # 🎯 Full-Stack Task Management Application
 
-A full-stack web application built with **Spring Boot** and **Angular** that allows users to register, log in, and seamlessly manage their personal tasks. 
+A full-stack web application built with **Spring Boot** and **Angular** that allows users to register, log in, and seamlessly manage their personal tasks.
 
 This project was developed as the final individual task for the Software Internship, demonstrating core concepts including Object-Oriented Programming (OOP), RESTful API design, stateless JWT security, Relational Database management, Docker containerization, and BDD testing.
 
@@ -85,3 +85,49 @@ You can spin up the PostgreSQL database and backend API using the provided `dock
    ```bash
    git clone <YOUR_REPO_URL>
    cd <YOUR_REPO_FOLDER>
+   ```
+
+2. Start the database using Docker Compose:
+   ```bash
+   docker-compose up -d
+   ```
+   *(This starts a Postgres 16 instance on port 5432 with User: `ahmed` and Password: `1234`)*
+
+3. Run the Spring Boot Backend:
+   ```bash
+   mvn clean install
+   mvn spring-boot:run
+   ```
+   *(The backend API will be available at http://localhost:8080)*
+
+4. Run the Angular Frontend (in a separate terminal):
+   ```bash
+   cd frontend
+   npm install
+   ng serve
+   ```
+   *(Access the web app at http://localhost:4200)*
+
+---
+
+## 🔄 CI/CD Pipeline
+This repository utilizes GitHub Actions for Continuous Integration.
+On every push or pull request, the pipeline automatically:
+
+1. Checks out the source code.
+2. Sets up the Java environment.
+3. Builds the project using Maven (`mvn clean install`).
+4. Executes all Unit and Cucumber BDD tests to ensure code reliability and prevent regressions before merging.
+
+---
+
+## 🧪 Testing (BDD)
+Behavior-Driven Development (BDD) was practiced using Cucumber.
+Features were written in standard Gherkin syntax (`.feature` files) before implementation to guide development (Test-Driven Development). Scenarios cover:
+
+- User Registration & Login (Success / Failure)
+- Task Creation & Validation
+- Task Retrieval & Filtering by Status/Priority
+- Role-based task isolation (Users accessing only their data)
+
+To view the BDD tests, navigate to `src/test/resources/features/` in the backend module.
